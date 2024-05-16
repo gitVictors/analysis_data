@@ -8,6 +8,7 @@
 [Описание работы SHA-2]( https://en.wikipedia.org/wiki/SHA-2)
 
 # Описание обозначений.
+![Одни цикл алгоритма SHA-2](./doc/SHA-2)
 $\oplus$ = XOR
 
 Ch(E,F,G) - 
