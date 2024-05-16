@@ -8,6 +8,8 @@
 [Описание работы SHA-2]( https://en.wikipedia.org/wiki/SHA-2)
 
 # Описание обозначений.
+$\oplus$ = XOR
+
 Ch(E,F,G) - 
 
 Ma(A,B,C) -
