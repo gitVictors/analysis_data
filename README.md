@@ -8,9 +8,13 @@
 [Описание работы SHA-2]( https://en.wikipedia.org/wiki/SHA-2)
 
 # Описание обозначений.
--Ch(E,F,G) - 
--Ma(A,B,C) -
--$\sum_0(A)$ = 
--$\sum_1(E)$ -
+Ch(E,F,G) - 
+
+Ma(A,B,C) -
+
+$\sum_0(A)$ = 
+
+$\sum_1(E)$ =
+
 
 
