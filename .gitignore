@@ -1,3 +1,6 @@
+# my ignore files 
+./main
+
 # Prerequisites
 *.d
 
