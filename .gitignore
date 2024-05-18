@@ -1,6 +1,6 @@
 # my ignore files 
 ./main
-./.vscode::
+./.vscode/
 # Prerequisites
 *.d
 
