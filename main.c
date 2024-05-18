@@ -30,11 +30,15 @@ const unsigned int sha256_consts[] = {
 
 unsigned int mass_for_commpres [64];
 
+
+
 //Функция формирования очереди по 512 бит или 16 слов
 //Предворительная обработка входного сообщения. кратное 512 бит
 void  get_msg_512 (unsigned int *msg, unsigned int *msg_512) {
 
 }
+//Разбиение всего сообщения на очередь из 512 бит кусков
+//void partition_msg_queue (unsigned int* msg_512)
 
 //Расширяем одно сообщеение с [0..15] до [0..63]
 
