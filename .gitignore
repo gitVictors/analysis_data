@@ -59,3 +59,4 @@ build/cmake_install.cmake
 build/*
 .vscode/*
 .vscode/settings.json
+./main

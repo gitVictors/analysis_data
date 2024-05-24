@@ -1,5 +1,6 @@
 ﻿#include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 //==== константы и пеерменные ==================================================
 
@@ -41,7 +42,7 @@ const unsigned int sha256_consts[] = {
 //Предворительная обработка входного сообщения. кратное 512 бит
 void  get_msg_512 (unsigned char *msg, unsigned int *msg_512) {
     int cnt;
-    cnt = sizeof (msg);
+    cnt = strlen (msg);
     printf ("%d\n\r", cnt);
 }
 
@@ -57,5 +58,5 @@ int main (int argc, char* argv){
 // analis sha-256
     printf ("hello visual studio code\n");
     get_msg_512 (msg, msg_512); 
-    return ; 
+    return 0 ; 
 }
