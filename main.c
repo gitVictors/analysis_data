@@ -1,6 +1,7 @@
 ﻿#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 //==== константы и пеерменные ==================================================
 
@@ -40,10 +41,13 @@ const unsigned int sha256_consts[] = {
 
 //Функция формирования очереди по 512 бит или 16 слов
 //Предворительная обработка входного сообщения. кратное 512 бит
-void  get_msg_512 (unsigned char *msg, unsigned int *msg_512) {
+void  get_msg_512 (const unsigned char *msg, unsigned char *msg_512) {
     int cnt;
+    unsigned char * tmp_mass;
     cnt = strlen (msg);
-    printf ("%d\n\r", cnt);
+    tmp_mass =  malloc ( cnt + 1) ;
+    tmp_mass [cnt + 1] = 0x128; //add 0x1 in big-endian
+    memcpy (msg_512, msg, cnt + 1);
 }
 
 //Расширяем одно сообщеение с [0..15] до [0..63]
@@ -54,9 +58,20 @@ void  get_msg_512 (unsigned char *msg, unsigned int *msg_512) {
 
 int main (int argc, char* argv){
 
-    unsigned int *msg_512 = malloc ( 512); 
-// analis sha-256
+    unsigned char *msg_512 = malloc ( 512 ); // 512 bite
+
+    // analis sha-256
     printf ("hello visual studio code\n");
     get_msg_512 (msg, msg_512); 
+
     return 0 ; 
 }
+
+
+
+
+
+
+
+
+
