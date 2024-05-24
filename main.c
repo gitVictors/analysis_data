@@ -53,6 +53,7 @@ void  get_msg_512 (unsigned char *msg, unsigned int *msg_512) {
 
 int main (int argc, char* argv){
 
+    unsigned int *msg_512 = malloc ( 512); 
 // analis sha-256
     printf ("hello visual studio code\n");
     get_msg_512 (msg, msg_512); 
