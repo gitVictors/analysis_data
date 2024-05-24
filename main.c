@@ -1,6 +1,13 @@
 ﻿#include <stdio.h>
 #include <stdint.h>
 
+//==== константы и пеерменные ==================================================
+
+// само сообщение для шифрования
+const unsigned char * msg = "Hellow world";
+
+unsigned int mass_for_commpres [64];
+
 //Инициализация начальных hash значенией
 const unsigned int sha256_init_state[8] = {
 	0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
@@ -28,17 +35,15 @@ const unsigned int sha256_consts[] = {
 };
 
 
-unsigned int mass_for_commpres [64];
-
-
+//===================================================================================
 
 //Функция формирования очереди по 512 бит или 16 слов
 //Предворительная обработка входного сообщения. кратное 512 бит
-void  get_msg_512 (unsigned int *msg, unsigned int *msg_512) {
-
+void  get_msg_512 (unsigned char *msg, unsigned int *msg_512) {
+    int cnt;
+    cnt = sizeof (msg);
+    printf ("%d\n\r", cnt);
 }
-//Разбиение всего сообщения на очередь из 512 бит кусков
-//void partition_msg_queue (unsigned int* msg_512)
 
 //Расширяем одно сообщеение с [0..15] до [0..63]
 
@@ -50,5 +55,6 @@ int main (int argc, char* argv){
 
 // analis sha-256
     printf ("hello visual studio code\n");
+    get_msg_512 (msg, msg_512); 
     return ; 
 }
