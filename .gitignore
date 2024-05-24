@@ -56,3 +56,5 @@ Mkfile.old
 dkms.conf
 .vscode/settings.json
 build/cmake_install.cmake
+build/*
+.vscode/*
