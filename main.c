@@ -39,29 +39,34 @@ const unsigned int sha256_consts[] = {
 
 //===================================================================================
 
+//Расширяем одно сообщеение с [0..15] до [0..63]
+static void extention_mss (const unsigned char* msg, unsigned char *msg_512 , int cnt) {
+    msg_512 = (unsigned char*) malloc (512/8); 
+    memcpy (msg_512, msg, cnt);
+}
+
 //Функция формирования очереди по 512 бит или 16 слов
 //Предворительная обработка входного сообщения. кратное 512 бит
-void  get_msg_512 (const unsigned char *msg, unsigned char *msg_512) {
+void  get_msg_512 (const char *msg, unsigned char *msg_512) {
     int cnt;
     unsigned char * tmp_mass;
     cnt = strlen (msg);
-    tmp_mass =  malloc ( cnt + 1) ;
-    tmp_mass [cnt + 1] = 0x128; //add 0x1 in big-endian
-    memcpy (msg_512, msg, cnt + 1);
+    cnt++;
+    tmp_mass =  malloc (cnt) ;
+    tmp_mass [cnt] =(unsigned char) 0x128U; //add 0x1 in big-endian
+    extention_mss (msg, msg_512, cnt);
+    
 }
-
-//Расширяем одно сообщеение с [0..15] до [0..63]
-
 
 //Основной цикл сжатия 
 
 
-int main (int argc, char* argv){
+int main ( int argc, char* argv[]){
 
-    unsigned char *msg_512 = malloc ( 512 ); // 512 bite
+    char *msg_512 = malloc ( 512 ); // 512 bite
 
     // analis sha-256
-    printf ("hello visual studio code\n");
+    printf ("Start sha512 \n");
     get_msg_512 (msg, msg_512); 
 
     return 0 ; 
