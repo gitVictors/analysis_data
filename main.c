@@ -60,16 +60,24 @@ void  get_msg_512 (const char *msg, unsigned char *msg_512) {
     
 }
 
-//Основной цикл сжатия 
+//созданеи масс 64 слова. типа uint32_t
+void  get_msg_uint32 ( uint8_t *msg_512, uint32_t* msg_i32) {
+    
+        
+}
 
+//Основной цикл сжатия 
 
 int main ( int argc, char* argv[]){
 
     char *msg_512 = malloc ( 512/8 ); // 512 bit
+    unsigned int *msg_i32 = (unsigned int *) malloc ( sizeof ( uint32_t ) * 64 );
 
     // analis sha-256
     printf ("Start sha512 \n");
     get_msg_512 (msg, msg_512); 
+    get_msg_uint32 (msg_512, msg_i32);
+
 
     return 0 ; 
 }
