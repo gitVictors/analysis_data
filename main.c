@@ -6,7 +6,7 @@
 //==== константы и пеерменные ==================================================
 
 // само сообщение для шифрования
-const unsigned char * msg = "Hellow world";
+const unsigned char * msg = "Hello world";
 
 unsigned int mass_for_commpres [64];
 
@@ -48,13 +48,15 @@ static void extention_mss (const unsigned char* msg, unsigned char *msg_512 , in
 //Функция формирования очереди по 512 бит или 16 слов
 //Предворительная обработка входного сообщения. кратное 512 бит
 void  get_msg_512 (const char *msg, unsigned char *msg_512) {
-    int cnt;
-    unsigned char * tmp_mass;
+    int cnt; //
+    int tmp;
+
     cnt = strlen (msg);
-    cnt++;
-    tmp_mass =  malloc (cnt) ;
-    tmp_mass [cnt] =(unsigned char) 0x128U; //add 0x1 in big-endian
-    extention_mss (msg, msg_512, cnt);
+    memcpy ( msg_512, msg, cnt );
+    msg_512[cnt] = (unsigned char) 0x80U;//add 0x1 in big-endian
+    //число бит в сообщении
+    tmp = cnt * 8;
+    msg_512[ (512/8-1) ] = tmp; //big-endian
     
 }
 
@@ -63,7 +65,7 @@ void  get_msg_512 (const char *msg, unsigned char *msg_512) {
 
 int main ( int argc, char* argv[]){
 
-    char *msg_512 = malloc ( 512 ); // 512 bite
+    char *msg_512 = malloc ( 512/8 ); // 512 bit
 
     // analis sha-256
     printf ("Start sha512 \n");
