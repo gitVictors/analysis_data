@@ -6,7 +6,7 @@
 //==== константы и пеерменные ==================================================
 
 // само сообщение для шифрования
-const unsigned char * msg = "Hello world";
+const unsigned char * msg = "hello world";
 
 unsigned int mass_for_commpres [64];
 
@@ -60,10 +60,38 @@ void  get_msg_512 (const char *msg, unsigned char *msg_512) {
     
 }
 
+static unsigned int read_u32 ( unsigned char *src){
+    
+    unsigned int res;
+    
+    res = (src[3] << 24) | (src[2] << 16) | (src[1] << 8) | src[0];
+
+    return res;
+}
+
+uint32_t ror(uint32_t x, uint32_t n)
+{
+    return (x >> n) | (x << (-n & 31));
+}
 //созданеи масс 64 слова. типа uint32_t
+//из массива 64 слова топа uint8_t . [0...15]
+//остальные слоова [16..64] получаем из свретки 
 void  get_msg_uint32 ( uint8_t *msg_512, uint32_t* msg_i32) {
     
-        
+    //бежим по массиву 64 байта (64/4 = 16)
+    for (int i = 0; i <  16 ; ++i) {
+        msg_i32[i] = read_u32(&msg_512[i * 4]);
+    } 
+    //бежим по массиву i32 и заполняем оствшиеся индексы
+    for (int i = 16; i != 64; ++i) {
+        w15 = w[i - 15];
+        w2 = w[i - 2];
+        s0 = ror(w15, 7) ^ ror(w15, 18) ^ (w15 >> 3);
+        s1 = ror(w2, 17) ^ ror(w2, 19) ^ (w2 >> 10);
+        w[i] = w[i - 16] + s0 + w[i - 7] + s1;
+    }
+
+
 }
 
 //Основной цикл сжатия 
@@ -71,7 +99,11 @@ void  get_msg_uint32 ( uint8_t *msg_512, uint32_t* msg_i32) {
 int main ( int argc, char* argv[]){
 
     char *msg_512 = malloc ( 512/8 ); // 512 bit
+    for (int i =0; i < 64; ++i) 
+        msg_512[i] = 0;
     unsigned int *msg_i32 = (unsigned int *) malloc ( sizeof ( uint32_t ) * 64 );
+    for (int i =0; i < 64; ++i) 
+        msg_i32 [i] = 0;
 
     // analis sha-256
     printf ("Start sha512 \n");
