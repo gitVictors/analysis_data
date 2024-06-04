@@ -59,20 +59,30 @@ void  get_msg_512 (const char *msg, unsigned char *msg_512) {
     msg_512[ (512/8-1) ] = tmp; //big-endian
     
 }
-
+//преобразование uint8_t массива в массив uint32_t big endian
 static unsigned int read_u32 ( unsigned char *src){
     
     unsigned int res;
     
-    res = (src[3] << 24) | (src[2] << 16) | (src[1] << 8) | src[0];
+    res = (src[0] << 24) | (src[1] << 16) | (src[2] << 8) | src[3];
 
     return res;
 }
-
-uint32_t ror(uint32_t x, uint32_t n)
+//John Regehr's https://blog.regehr.org/archives/1063
+static uint32_t ror(uint32_t x, uint32_t n)
 {
     return (x >> n) | (x << (-n & 31));
 }
+
+// SHA-2 uses big-endian integers.
+static void write_u32(uint8_t* dest, uint32_t x)
+{
+    *dest++ = (x >> 24) & 0xff;
+    *dest++ = (x >> 16) & 0xff;
+    *dest++ = (x >> 8) & 0xff;
+    *dest++ = (x >> 0) & 0xff;
+}
+
 //созданеи масс 64 слова. типа uint32_t
 //из массива 64 слова топа uint8_t . [0...15]
 //остальные слоова [16..64] получаем из свретки 
@@ -82,15 +92,15 @@ void  get_msg_uint32 ( uint8_t *msg_512, uint32_t* msg_i32) {
     for (int i = 0; i <  16 ; ++i) {
         msg_i32[i] = read_u32(&msg_512[i * 4]);
     } 
-    //бежим по массиву i32 и заполняем оствшиеся индексы
+    
+    //бежим по массиву i32 и заполняем оставшиеся индексы
     for (int i = 16; i != 64; ++i) {
-        w15 = w[i - 15];
-        w2 = w[i - 2];
-        s0 = ror(w15, 7) ^ ror(w15, 18) ^ (w15 >> 3);
-        s1 = ror(w2, 17) ^ ror(w2, 19) ^ (w2 >> 10);
-        w[i] = w[i - 16] + s0 + w[i - 7] + s1;
+        uint32_t  w15 = msg_i32 [i - 15];
+        uint32_t  w2 = msg_i32 [i - 2];
+        uint32_t  s0  = ror(w15, 7) ^ ror(w15, 18) ^ (w15 >> 3);
+        uint32_t  s1  = ror(w2, 17) ^ ror(w2, 19) ^ (w2 >> 10);
+        msg_i32 [i]  = msg_i32 [i - 16] + s0 + msg_i32 [i - 7] + s1;
     }
-
 
 }
 
