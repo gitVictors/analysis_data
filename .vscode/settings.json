@@ -36,7 +36,7 @@
       "<C-f>": false
     },
   
-    "// To improve performance",
+   // "// To improve performance",
     "extensions.experimental.affinity": {
       "vscodevim.vim": 1
     }

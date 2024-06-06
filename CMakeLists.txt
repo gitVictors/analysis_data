@@ -8,4 +8,7 @@ add_executable(analis_sha main.c)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mbig-endian")
+
 include(CPack)

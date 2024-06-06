@@ -3,12 +3,21 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 //==== константы и пеерменные ==================================================
 
 // само сообщение для шифрования
-const unsigned char * msg = "hello world";
+unsigned char * msg = "hello world";
 
 unsigned int mass_for_commpres [64];
+
+struct mss512
+{
+    uint8_t* mass_512;
+    uint8_t one_bend; 
+    unsigned int  cnt_bgend;
+};
+
 
 //Инициализация начальных hash значенией
 const unsigned int sha256_init_state[8] = {
@@ -47,24 +56,26 @@ static void extention_mss (const unsigned char* msg, unsigned char *msg_512 , in
 
 //Функция формирования очереди по 512 бит или 16 слов
 //Предворительная обработка входного сообщения. кратное 512 бит
-void  get_msg_512 (const char *msg, unsigned char *msg_512) {
+void  get_msg_512 (const char *msg, struct mss512  *msg_512) {
     int cnt; //
     int tmp;
 
     cnt = strlen (msg);
     memcpy ( msg_512, msg, cnt );
-    msg_512[cnt] = (unsigned char) 0x80U;//add 0x1 in big-endian
-    //число бит в сообщении
+    msg_512->one_bend = (unsigned char) 0x80U;//add 0x1 in big-endian
+    pritnf ("%x %x %x",msg_512->mass_512[0],msg_512->mass_512[1], msg_512->mass_512[2] );
+    //Длинна сообщения в битах. 
     tmp = cnt * 8;
-    msg_512[ (512/8-1) ] = tmp; //big-endian
+    msg_512->cnt_bgend = tmp; //big-endian
     
 }
+
 //преобразование uint8_t массива в массив uint32_t big endian
 static unsigned int read_u32 ( unsigned char *src){
     
     unsigned int res;
     
-    res = (src[0] << 24) | (src[1] << 16) | (src[2] << 8) | src[3];
+    res = (src[3] << 24) | (src[2] << 16) | (src[1] << 8) | src[0];
 
     return res;
 }
@@ -80,7 +91,7 @@ static void write_u32(uint8_t* dest, uint32_t x)
     *dest++ = (x >> 24) & 0xff;
     *dest++ = (x >> 16) & 0xff;
     *dest++ = (x >> 8) & 0xff;
-    *dest++ = (x >> 0) & 0xff;
+    *dest++ = (x >> 0) & 0xff; 
 }
 
 //созданеи масс 64 слова. типа uint32_t
