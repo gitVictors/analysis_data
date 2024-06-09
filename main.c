@@ -13,10 +13,14 @@ unsigned int mass_for_commpres [64];
 
 struct mss512
 {
+
     uint8_t* mass_512;
-    uint8_t one_bend; 
-    unsigned int  cnt_bgend;
+    uint8_t one; 
+    uint64_t cnt;
+
 };
+
+struct mss512 msg_512;
 
 
 //Инициализация начальных hash значенией
@@ -48,6 +52,18 @@ const unsigned int sha256_consts[] = {
 
 //===================================================================================
 
+static void write_u64(uint8_t* dest, uint64_t x)
+{
+    *dest++ = (x >> 56) & 0xff;
+    *dest++ = (x >> 48) & 0xff;
+    *dest++ = (x >> 40) & 0xff;
+    *dest++ = (x >> 32) & 0xff;
+    *dest++ = (x >> 24) & 0xff;
+    *dest++ = (x >> 16) & 0xff;
+    *dest++ = (x >> 8) & 0xff;
+    *dest++ = (x >> 0) & 0xff;
+}
+
 //Расширяем одно сообщеение с [0..15] до [0..63]
 static void extention_mss (const unsigned char* msg, unsigned char *msg_512 , int cnt) {
     msg_512 = (unsigned char*) malloc (512/8); 
@@ -57,28 +73,46 @@ static void extention_mss (const unsigned char* msg, unsigned char *msg_512 , in
 //Функция формирования очереди по 512 бит или 16 слов
 //Предворительная обработка входного сообщения. кратное 512 бит
 void  get_msg_512 (const char *msg, struct mss512  *msg_512) {
+
     int cnt; //
-    int tmp;
+    uint64_t tmp;
+   // uint64_t res;
 
     cnt = strlen (msg);
-    memcpy ( msg_512, msg, cnt );
-    msg_512->one_bend = (unsigned char) 0x80U;//add 0x1 in big-endian
-    pritnf ("%x %x %x",msg_512->mass_512[0],msg_512->mass_512[1], msg_512->mass_512[2] );
+    memcpy ( msg_512->mass_512, msg, cnt );
+    msg_512->one = (unsigned char) 0x80U;//add 0x1 but mast in big-endian
+    //memcpy ( &msg_512->mass_512[cnt], &msg_512->one, 1 );
+    printf ( "%x %x %x %x \n\r", msg_512->mass_512[0],  msg_512->mass_512[1] ,  msg_512->mass_512[2] ,  msg_512->mass_512[3] );
     //Длинна сообщения в битах. 
     tmp = cnt * 8;
-    msg_512->cnt_bgend = tmp; //big-endian
+    msg_512->cnt = tmp; 
     
 }
 
+//===================================================================================
+
 //преобразование uint8_t массива в массив uint32_t big endian
-static unsigned int read_u32 ( unsigned char *src){
+static uint32_t read_u32 ( uint8_t *src){
     
     unsigned int res;
     
-    res = (src[3] << 24) | (src[2] << 16) | (src[1] << 8) | src[0];
+    res = (src[0] << 24) | (src[1] << 16) | (src[2] << 8) | src[3];
 
     return res;
 }
+
+//преобразование uint8_t массива в массив uint64 big endian
+static uint64_t read_u64 ( uint8_t * src) {
+
+    uint64_t res;
+
+    res = (src[0] << 24) | (src[1] << 16) | (src[2] << 8) | (src[3] << 0) ; 
+    res = ( res << 32)  |  (src[4] << 24) | (src[5] << 16) | (src[6] << 8) | (src[7] << 0);
+
+    return res;
+    
+}
+
 //John Regehr's https://blog.regehr.org/archives/1063
 static uint32_t ror(uint32_t x, uint32_t n)
 {
@@ -97,49 +131,80 @@ static void write_u32(uint8_t* dest, uint32_t x)
 //созданеи масс 64 слова. типа uint32_t
 //из массива 64 слова топа uint8_t . [0...15]
 //остальные слоова [16..64] получаем из свретки 
-void  get_msg_uint32 ( uint8_t *msg_512, uint32_t* msg_i32) {
+void  get_msg_uint32 ( struct mss512  *msg_512, uint32_t* msg_i32) {
     
     //бежим по массиву 64 байта (64/4 = 16)
     for (int i = 0; i <  16 ; ++i) {
-        msg_i32[i] = read_u32(&msg_512[i * 4]);
+       // msg_i32[i] = read_u32(&msg_512->mass_512[i * 4]);
+        msg_i32[i] = *(uint32_t*) &msg_512->mass_512[i*4];
     } 
+    //Добавляем единицу в последний свободный байт 0x80.
+    uint8_t* pfbt = (uint8_t*) &msg_i32[0]; //нужен авто перещет 
+    //printf ("msg_i32 0 = %x %x %x %x \n\r", *pfbt, *(pfbt+1), *(pfbt+2), *(pfbt+3));
+    pfbt = pfbt + 11;
+    *pfbt =(uint8_t) 0x80U;
+    //debug
+   // pfbt =  (uint8_t*) &msg_i32[1];
+   // printf ("msg_i32 1 = %x %x %x %x \n\r", *pfbt, *(pfbt+1), *(pfbt+2), *(pfbt+3));
+    //printf (" msg_512 = %x \n\r", msg_512->mass_512[10]);
+   // printf (" msg_i32 = %x \n\r", msg_i32[2]);
     
+    //добаляю число бит сообщения в i64 слово
+    uint64_t* pcnt64 = (uint64_t*) &msg_i32 [14]; 
+    *pcnt64 = read_u64((uint8_t*) &msg_512->cnt);
+    //debug
+    pfbt =  (uint8_t*) &msg_i32[14];
+    printf ("msg_i32 = %x %x %x %x \n\r", *pfbt, *(pfbt+1), *(pfbt+2), *(pfbt+3));
+    pfbt =  (uint8_t*) &msg_i32[15];
+    printf ("msg_i32 = %x %x %x %x \n\r", *pfbt, *(pfbt+1), *(pfbt+2), *(pfbt+3));
+
+    uint32_t tmp1 = read_u32 ( (uint8_t*) &msg_i32 [1] ); 
+    pfbt =  (uint8_t*) &tmp1;
+    printf ("tmp1 = %x %x %x %x \n\r", *pfbt, *(pfbt+1), *(pfbt+2), *(pfbt+3));
+    uint32_t tmp1_rt = ror(tmp1, 7); //tmp1 >> 8; // ror(tmp1, 7);
+    pfbt =  (uint8_t*) &tmp1_rt;
+    printf ("tmp1_rt = %x %x %x %x \n\r", *pfbt, *(pfbt+1), *(pfbt+2), *(pfbt+3));
+
     //бежим по массиву i32 и заполняем оставшиеся индексы
     for (int i = 16; i != 64; ++i) {
-        uint32_t  w15 = msg_i32 [i - 15];
-        uint32_t  w2 = msg_i32 [i - 2];
+        uint32_t  w15 = read_u32 ( (uint8_t*) &msg_i32 [i - 15] );
+        uint32_t  w2 = read_u32 ((uint8_t*) &msg_i32 [i - 2]);
         uint32_t  s0  = ror(w15, 7) ^ ror(w15, 18) ^ (w15 >> 3);
         uint32_t  s1  = ror(w2, 17) ^ ror(w2, 19) ^ (w2 >> 10);
-        msg_i32 [i]  = msg_i32 [i - 16] + s0 + msg_i32 [i - 7] + s1;
+        uint32_t res = read_u32 (( uint8_t*) &msg_i32 [i - 16] ) + s0 + read_u32 ( (uint8_t*) &msg_i32 [i - 7] ) + s1;
+        msg_i32 [i] = read_u32 ((uint8_t*) &res);  // меняем обратно на LE
     }
 
 }
 
-//Основной цикл сжатия 
+//==============================================================================
+
+//======Основной цикл сжатия==========================================================
+
+void sequence_compression ( uint32_t msg []) {
+
+
+}
+
+//==============================================================================
 
 int main ( int argc, char* argv[]){
 
-    char *msg_512 = malloc ( 512/8 ); // 512 bit
+    msg_512.mass_512 = malloc ( 512/8 ); // 512 bit
     for (int i =0; i < 64; ++i) 
-        msg_512[i] = 0;
+       msg_512.mass_512[i]  = 0;
     unsigned int *msg_i32 = (unsigned int *) malloc ( sizeof ( uint32_t ) * 64 );
     for (int i =0; i < 64; ++i) 
         msg_i32 [i] = 0;
 
     // analis sha-256
     printf ("Start sha512 \n");
-    get_msg_512 (msg, msg_512); 
-    get_msg_uint32 (msg_512, msg_i32);
-
+    get_msg_512 (msg, &msg_512); 
+    get_msg_uint32 (&msg_512, msg_i32);
+    sequence_compression (&msg_i32);
 
     return 0 ; 
 }
-
-
-
-
-
-
 
 
 
