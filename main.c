@@ -30,7 +30,7 @@ const unsigned int sha256_init_state[8] = {
 };
 
 //Инициализация массива округленных констант
-const unsigned int sha256_consts[] = {
+const uint32_t sha256_consts[] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, /*  0 */
     0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, /*  8 */
@@ -172,7 +172,7 @@ void  get_msg_uint32 ( struct mss512  *msg_512, uint32_t* msg_i32) {
         uint32_t  s0  = ror(w15, 7) ^ ror(w15, 18) ^ (w15 >> 3);
         uint32_t  s1  = ror(w2, 17) ^ ror(w2, 19) ^ (w2 >> 10);
         uint32_t res = read_u32 (( uint8_t*) &msg_i32 [i - 16] ) + s0 + read_u32 ( (uint8_t*) &msg_i32 [i - 7] ) + s1;
-        msg_i32 [i] = read_u32 ((uint8_t*) &res);  // меняем обратно на LE
+        msg_i32 [i] = read_u32 ((uint8_t*) &res);  // меняем обратно на LE, что бы в памяти было удобно читать.
     }
 
 }
@@ -181,11 +181,65 @@ void  get_msg_uint32 ( struct mss512  *msg_512, uint32_t* msg_i32) {
 
 //======Основной цикл сжатия==========================================================
 
+
+
 void sequence_compression ( uint32_t msg []) {
 
+    uint32_t a = 0x6a09e667;
+    uint32_t b = 0xbb67ae85;
+    uint32_t c = 0x3c6ef372;
+    uint32_t d = 0xa54ff53a;
+    uint32_t e = 0x510e527f;
+    uint32_t f = 0x9b05688c;
+    uint32_t g = 0x1f83d9ab;
+    uint32_t h = 0x5be0cd19;
+
+    uint32_t h1 = 0x6a09e667;
+    uint32_t h2 = 0xbb67ae85;
+    uint32_t h3 = 0x3c6ef372;
+    uint32_t h4 = 0xa54ff53a;
+    uint32_t h5 = 0x510e527f;
+    uint32_t h6 = 0x9b05688c;
+    uint32_t h7 = 0x1f83d9ab;
+    uint32_t h8 = 0x5be0cd19;
+
+
+    uint32_t S0, S1;
+    uint32_t ch;
+    uint32_t tmp1;
+    uint32_t mjr;
+    uint32_t tmp2;
+
+    for (int i = 0; i != 64; ++i) {
+
+        S1 = ror(e , 6) ^ ror(e, 11) ^ ror(e, 25);
+        ch = (e & f) ^ (~e & g);
+        tmp1 = h + S1 + ch +  sha256_consts[i] + read_u32( ( uint8_t* ) &msg[i] ); 
+        S0 = ror(a, 2)  ^ ror (a, 13) ^ ror(a, 22);
+        mjr = (a & b) ^ (a & c) ^ (b & c);
+        tmp2 = S0 + mjr;
+
+        h = g;
+        g = f;
+        f = e; 
+        e = d + tmp1;
+        d = c;
+        c = b;
+        b = a;
+        a = tmp1 + tmp2;
+
+    }
+
+    h1 += a;
+    h2 += b;
+    h3 += c;
+    h4 += d;
+    h5 += e;
+    h6 += f;
+    h7 += g;
+    h8 += h;
 
 }
-
 //==============================================================================
 
 int main ( int argc, char* argv[]){
@@ -201,7 +255,7 @@ int main ( int argc, char* argv[]){
     printf ("Start sha512 \n");
     get_msg_512 (msg, &msg_512); 
     get_msg_uint32 (&msg_512, msg_i32);
-    sequence_compression (&msg_i32);
+    sequence_compression (msg_i32);
 
     return 0 ; 
 }
