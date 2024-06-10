@@ -7,7 +7,7 @@
 //==== константы и пеерменные ==================================================
 
 // само сообщение для шифрования
-unsigned char * msg = "hello world";
+unsigned char * msg = "hello worll";
 
 unsigned int mass_for_commpres [64];
 
@@ -179,11 +179,9 @@ void  get_msg_uint32 ( struct mss512  *msg_512, uint32_t* msg_i32) {
 
 //==============================================================================
 
-//======Основной цикл сжатия==========================================================
+//======Основной цикл сжатия====================================================
 
-
-
-void sequence_compression ( uint32_t msg []) {
+void sequence_compression ( uint32_t msg [], uint32_t hash256 []) {
 
     uint32_t a = 0x6a09e667;
     uint32_t b = 0xbb67ae85;
@@ -239,6 +237,17 @@ void sequence_compression ( uint32_t msg []) {
     h7 += g;
     h8 += h;
 
+
+    hash256 [0] = h1;
+    hash256 [1] = h2;
+    hash256 [2] = h3;
+    hash256 [3] = h4;
+    hash256 [4] = h5;
+    hash256 [5] = h6;
+    hash256 [6] = h7;
+    hash256 [7] = h8;
+
+
 }
 //==============================================================================
 
@@ -251,11 +260,21 @@ int main ( int argc, char* argv[]){
     for (int i =0; i < 64; ++i) 
         msg_i32 [i] = 0;
 
+    uint32_t  *hash256 = (unsigned int *) malloc ( sizeof ( uint32_t ) * 8 );
+    for(int i = 0; i < 8; ++i)
+        hash256 [i] = 0;
+   
+
     // analis sha-256
     printf ("Start sha512 \n");
     get_msg_512 (msg, &msg_512); 
     get_msg_uint32 (&msg_512, msg_i32);
-    sequence_compression (msg_i32);
+    sequence_compression (msg_i32, hash256);
+
+    for (int i = 0; i < 8; ++i) {
+        printf ("%8x ", hash256[i] );
+    }
+    printf ("\n\r");
 
     return 0 ; 
 }
