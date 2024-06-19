@@ -247,6 +247,11 @@ void sequence_compression ( uint32_t msg [], uint32_t hash256 []) {
     hash256 [6] = h7;
     hash256 [7] = h8;
 
+    printf ("a, b, c, d, e, f, g, h\n");
+    printf ("%x %x %x %x %x %x %x %x\n", a, b, c, d, e, f, g, h);
+    printf ("hash \n");
+    printf ("%x %x %x %x %x %x %x %x\n", hash256[0] , hash256[1], hash256[2], hash256[3] , hash256[4], hash256[5], \
+            hash256 [6] , hash256 [7] );
 
 }
 //==============================================================================
@@ -270,12 +275,12 @@ int main ( int argc, char* argv[]){
     get_msg_512 (msg, &msg_512); 
     get_msg_uint32 (&msg_512, msg_i32);
     sequence_compression (msg_i32, hash256);
-
+/*
     for (int i = 0; i < 8; ++i) {
         printf ("%8x ", hash256[i] );
     }
     printf ("\n\r");
-
+*/
     return 0 ; 
 }
 
