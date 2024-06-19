@@ -41,5 +41,8 @@
     "extensions.experimental.affinity": {
       "vscodevim.vim": 1
     },
-    "vim.neovimUseConfigFile": false
+    "vim.neovimUseConfigFile": false,
+    "files.associations": {
+      "stdio.h": "c"
+    }
 }

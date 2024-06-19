@@ -3,11 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "log_step.h"
 
 //==== константы и пеерменные ==================================================
 
 // само сообщение для шифрования
-unsigned char * msg = "hello worll";
+unsigned char * msg = "hello eorll";
 
 unsigned int mass_for_commpres [64];
 
@@ -226,6 +227,9 @@ void sequence_compression ( uint32_t msg [], uint32_t hash256 []) {
         b = a;
         a = tmp1 + tmp2;
 
+        print_bt_mr (a, b, c, d, e, f, g, h);
+        printf ("\n");
+
     }
 
     h1 += a;
@@ -246,12 +250,25 @@ void sequence_compression ( uint32_t msg [], uint32_t hash256 []) {
     hash256 [5] = h6;
     hash256 [6] = h7;
     hash256 [7] = h8;
+    
 
-    printf ("a, b, c, d, e, f, g, h\n");
-    printf ("%x %x %x %x %x %x %x %x\n", a, b, c, d, e, f, g, h);
-    printf ("hash \n");
-    printf ("%x %x %x %x %x %x %x %x\n", hash256[0] , hash256[1], hash256[2], hash256[3] , hash256[4], hash256[5], \
-            hash256 [6] , hash256 [7] );
+    printf ("a, b, c, d, e, f, g, h \n");
+    print_bt_mr (a, b, c, d, e, f, g, h);
+    printf ("\n");
+    
+    printf ("hash 256 \n");
+    for (uint8_t i = 0; i < 8; ++i) {
+        print_bt (&hash256[i]);
+    }
+    printf ("\n");
+
+
+//    printf ("a, b, c, d, e, f, g, h\n");
+//    printf ("%x %x %x %x %x %x %x %x\n", a, b, c, d, e, f, g, h);
+//    printf ("hash \n");
+//    printf ("%x %x %x %x %x %x %x %x\n", hash256[0] , hash256[1], hash256[2], hash256[3] , hash256[4], hash256[5], \
+//            hash256 [6] , hash256 [7] );
+
 
 }
 //==============================================================================
