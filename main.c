@@ -8,7 +8,7 @@
 //==== константы и пеерменные ==================================================
 
 // само сообщение для шифрования
-unsigned char * msg = "hello eorll";
+unsigned char * msg = "hello eorllh";
 
 unsigned int mass_for_commpres [64];
 
@@ -17,7 +17,8 @@ struct mss512
 
     uint8_t* mass_512;
     uint8_t one; 
-    uint64_t cnt;
+    uint64_t cnt; //колличество бит в сообщении 
+    uint32_t cnt_byte;//колличество байт в сообщении
 
 };
 
@@ -87,6 +88,7 @@ void  get_msg_512 (const char *msg, struct mss512  *msg_512) {
     //Длинна сообщения в битах. 
     tmp = cnt * 8;
     msg_512->cnt = tmp; 
+    msg_512->cnt_byte = cnt;
     
 }
 
@@ -142,7 +144,7 @@ void  get_msg_uint32 ( struct mss512  *msg_512, uint32_t* msg_i32) {
     //Добавляем единицу в последний свободный байт 0x80.
     uint8_t* pfbt = (uint8_t*) &msg_i32[0]; //нужен авто перещет 
     //printf ("msg_i32 0 = %x %x %x %x \n\r", *pfbt, *(pfbt+1), *(pfbt+2), *(pfbt+3));
-    pfbt = pfbt + 11;
+    pfbt = pfbt + msg_512->cnt_byte; //11;//msg_512->cnt;
     *pfbt =(uint8_t) 0x80U;
     //debug
    // pfbt =  (uint8_t*) &msg_i32[1];
